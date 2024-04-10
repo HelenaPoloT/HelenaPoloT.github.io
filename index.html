@@ -14,19 +14,21 @@
         <canvas id="unity-canvas" style="width: 100%; height: 100%;"></canvas>
       </div>
       <div id="unity-loading-bar">
-        <div id="unity-logo"></div>
+        <!--<div id="unity-logo"></div>-->
         <div id="unity-progress-bar-empty">
           <div id="unity-progress-bar-full"></div>
         </div>
+        <button id="enterar" value="Enter AR" disabled>AR</button>
       </div>
-      <div id="unity-footer">
+
+      <!--<div id="unity-footer">
         <div id="unity-webgl-logo"></div>
         <button id="entervr" value="Enter VR" disabled>VR</button>
         <button id="enterar" value="Enter AR" disabled>AR</button>
         <div id="unity-webxr-link">Using <a href="https://github.com/De-Panther/unity-webxr-export" target="_blank" title="WebXR Export">WebXR Export</a></div>
         <div id="unity-build-title">QRscan</div>
       </div>
-    </div>
+    </div>-->
     <script>
       var buildUrl = "Build";
       var loaderUrl = buildUrl + "/cubo_test_2.loader.js";
@@ -45,12 +47,12 @@
       var canvasContainer = document.querySelector("#unity-canvas-container");
       var loadingBar = document.querySelector("#unity-loading-bar");
       var progressBarFull = document.querySelector("#unity-progress-bar-full");
-      var fullscreenButton = document.querySelector("#unity-fullscreen-button");
+      //var fullscreenButton = document.querySelector("#unity-fullscreen-button");
       var unityInstance = null;
       
 
-      canvasContainer.style.width = "960px";
-      canvasContainer.style.height = "600px";
+      canvasContainer.style.width = "100%";
+      canvasContainer.style.height = "100%";
       loadingBar.style.display = "block";
 
       var script = document.createElement("script");
@@ -61,12 +63,14 @@
         }).then((instance) => {
           unityInstance = instance;
           loadingBar.style.display = "none";
-          if (fullscreenButton)
+          unityInstance.Module.WebAR.onload;
+
+          /*if (fullscreenButton)
           {
             fullscreenButton.onclick = () => {
               unityInstance.SetFullscreen(1);
             };
-          }
+          }*/
         }).catch((message) => {
           alert(message);
         });
@@ -74,21 +78,21 @@
       document.body.appendChild(script);
 
       let enterARButton = document.getElementById('enterar');
-      let enterVRButton = document.getElementById('entervr');
+      //let enterVRButton = document.getElementById('entervr');
 
       document.addEventListener('onARSupportedCheck', function (event) {
         enterARButton.disabled = !event.detail.supported;
       }, false);
-      document.addEventListener('onVRSupportedCheck', function (event) {
+      /*document.addEventListener('onVRSupportedCheck', function (event) {
         enterVRButton.disabled = !event.detail.supported;
-      }, false);
+      }, false);*/
 
-      enterARButton.addEventListener('click', function (event) {
+      /*enterARButton.addEventListener('click', function (event) {
         unityInstance.Module.WebXR.toggleAR();
-      }, false);
-      enterVRButton.addEventListener('click', function (event) {
+      }, false);*/
+      /*enterVRButton.addEventListener('click', function (event) {
         unityInstance.Module.WebXR.toggleVR();
-      }, false);
+      }, false);*/
     </script>
   </body>
 </html>
