@@ -65,6 +65,9 @@
           {
             fullscreenButton.onclick = () => {*/
               unityInstance.SetFullscreen(1);
+              document.addEventListener('onARSupportedCheck', function (event) {
+              unityInstance.Module.WebXR.toggleAR();
+      }, false);
             //};
           //}
         }).catch((message) => {
@@ -75,10 +78,8 @@
 
       //let enterARButton = document.getElementById('enterar');
       //let enterVRButton = document.getElementById('entervr');
-
-      document.addEventListener('onARSupportedCheck', function (event) {
-        unityInstance.Module.WebXR.toggleAR();
-      }, false);
+      
+      
       /*document.addEventListener('onVRSupportedCheck', function (event) {
         enterVRButton.disabled = !event.detail.supported;
       }, false);*/
