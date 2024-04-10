@@ -11,14 +11,13 @@
   <body>
     <div id="unity-container">
       <div id="unity-canvas-container">
-        <canvas id="unity-canvas" style="width: 100%; height: 100%;">
-        </canvas>
+        <canvas id="unity-canvas" style="width: 100%; height: 100%;"></canvas>
       </div>
+      <div id="logo-envjoy"></div>
       <div id="unity-loading-bar">
         <div id="unity-logo"></div>
         <div id="unity-progress-bar-empty">
           <div id="unity-progress-bar-full"></div>
-          <div id="envoy-logo"><img src="Logo-Envjoy vertical.png"></div>
         </div>
       </div>
       <div id="unity-footer">
@@ -31,11 +30,11 @@
     </div>
     <script>
       var buildUrl = "Build";
-      var loaderUrl = buildUrl + "/cubo_test_6.loader.js";
+      var loaderUrl = buildUrl + "/cubo_test_7.loader.js";
       var config = {
-        dataUrl: buildUrl + "/cubo_test_6.data",
-        frameworkUrl: buildUrl + "/cubo_test_6.framework.js",
-        codeUrl: buildUrl + "/cubo_test_6.wasm",
+        dataUrl: buildUrl + "/cubo_test_7.data",
+        frameworkUrl: buildUrl + "/cubo_test_7.framework.js",
+        codeUrl: buildUrl + "/cubo_test_7.wasm",
         streamingAssetsUrl: "StreamingAssets",
         companyName: "Envjoy",
         productName: "QRscan",
@@ -49,7 +48,7 @@
       var progressBarFull = document.querySelector("#unity-progress-bar-full");
       var fullscreenButton = document.querySelector("#unity-fullscreen-button");
       var unityInstance = null;
-      var logoEnvjoy = document.querySelector("envoy-logo");
+      var logoEnvjoy = document.querySelector("logo-envjoy");
       
 
       canvasContainer.style.width = "960px";
@@ -65,38 +64,36 @@
         }).then((instance) => {
           unityInstance = instance;
           loadingBar.style.display = "none";
-          //logoEnvjoy.style.display = "block";
-          /*if (fullscreenButton)
+          logoEnvjoy.style.display = "block";
+
+          if (fullscreenButton)
           {
-            fullscreenButton.onclick = () => {*/
-              setTimeout(function() {
-                //unityInstance.SetFullscreen(1);
-                document.addEventListener('onARSupportedCheck', function (event) {
-                  unityInstance.Module.WebXR.toggleAR();
-                }, false);
-              }, 1000);
-            //};
-          //}
+            fullscreenButton.onclick = () => {
+              unityInstance.SetFullscreen(1);
+            };
+          }
         }).catch((message) => {
           alert(message);
         });
       };
       document.body.appendChild(script);
 
-      //let enterARButton = document.getElementById('enterar');
-      //let enterVRButton = document.getElementById('entervr');
-      
-      
-      /*document.addEventListener('onVRSupportedCheck', function (event) {
-        enterVRButton.disabled = !event.detail.supported;
-      }, false);*/
+      let enterARButton = document.getElementById('enterar');
+      let enterVRButton = document.getElementById('entervr');
 
-      /*enterARButton.addEventListener('click', function (event) {
+      document.addEventListener('onARSupportedCheck', function (event) {
+        enterARButton.disabled = !event.detail.supported;
+      }, false);
+      document.addEventListener('onVRSupportedCheck', function (event) {
+        enterVRButton.disabled = !event.detail.supported;
+      }, false);
+
+      enterARButton.addEventListener('click', function (event) {
         unityInstance.Module.WebXR.toggleAR();
       }, false);
       enterVRButton.addEventListener('click', function (event) {
         unityInstance.Module.WebXR.toggleVR();
-      }, false);*/
+      }, false);
     </script>
   </body>
 </html>
