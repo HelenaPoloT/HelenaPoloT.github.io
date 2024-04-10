@@ -65,9 +65,11 @@
           {
             fullscreenButton.onclick = () => {*/
               unityInstance.SetFullscreen(1);
+              setTimeout(function() {
               document.addEventListener('onARSupportedCheck', function (event) {
               unityInstance.Module.WebXR.toggleAR();
       }, false);
+    }, 1000);
             //};
           //}
         }).catch((message) => {
