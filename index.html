@@ -61,34 +61,34 @@
         }).then((instance) => {
           unityInstance = instance;
           loadingBar.style.display = "none";
-          if (fullscreenButton)
+          /*if (fullscreenButton)
           {
-            fullscreenButton.onclick = () => {
+            fullscreenButton.onclick = () => {*/
               unityInstance.SetFullscreen(1);
-            };
-          }
+            //};
+          //}
         }).catch((message) => {
           alert(message);
         });
       };
       document.body.appendChild(script);
 
-      let enterARButton = document.getElementById('enterar');
-      let enterVRButton = document.getElementById('entervr');
+      //let enterARButton = document.getElementById('enterar');
+      //let enterVRButton = document.getElementById('entervr');
 
       document.addEventListener('onARSupportedCheck', function (event) {
-        enterARButton.disabled = !event.detail.supported;
-      }, false);
-      document.addEventListener('onVRSupportedCheck', function (event) {
+        unityInstance.Module.WebXR.toggleAR();
+      }, true);
+      /*document.addEventListener('onVRSupportedCheck', function (event) {
         enterVRButton.disabled = !event.detail.supported;
-      }, false);
+      }, false);*/
 
-      enterARButton.addEventListener('click', function (event) {
+      /*enterARButton.addEventListener('click', function (event) {
         unityInstance.Module.WebXR.toggleAR();
       }, false);
       enterVRButton.addEventListener('click', function (event) {
         unityInstance.Module.WebXR.toggleVR();
-      }, false);
+      }, false);*/
     </script>
   </body>
 </html>
