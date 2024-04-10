@@ -14,11 +14,9 @@
     <canvas id="unity-canvas" style="width: 100%; height: 100%;"></canvas>
   </div>
   <div id="unity-loading-bar">
-    <!--<div id="unity-logo"></div>-->
     <div id="unity-progress-bar-empty">
       <div id="unity-progress-bar-full"></div>
     </div>
-    <button id="enterar" value="Enter AR" disabled>AR</button>
   </div>
 </div>
 
@@ -42,8 +40,8 @@
   var progressBarFull = document.querySelector("#unity-progress-bar-full");
   var unityInstance = null;
 
-  canvasContainer.style.width = "1080px";
-  canvasContainer.style.height = "1920px";
+  canvasContainer.style.width = "100%";
+  canvasContainer.style.height = "100%";
   loadingBar.style.display = "block";
 
   var script = document.createElement("script");
@@ -54,31 +52,15 @@
     }).then((instance) => {
       unityInstance = instance;
       loadingBar.style.display = "none";
-
+      
       // Activa automáticamente la funcionalidad de AR
-      unityInstance.Module.WebAR.display;
-
-      /*if (fullscreenButton)
-      {
-        fullscreenButton.onclick = () => {
-          unityInstance.SetFullscreen(1);
-        };
-      }*/
+      unityInstance.Module.WebXR.toggleAR();
     }).catch((message) => {
       alert(message);
     });
   };
   document.body.appendChild(script);
-
-  let enterARButton = document.getElementById('enterar');
-
-  document.addEventListener('onARSupportedCheck', function (event) {
-    enterARButton.disabled = !event.detail.supported;
-  }, false);
-
-  enterARButton.addEventListener('click', function (event) {
-    unityInstance.Module.WebAR.display;
-  }, false);
 </script>
 </body>
 </html>
+
