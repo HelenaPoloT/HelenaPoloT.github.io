@@ -15,4 +15,4 @@ body { padding: 0; margin: 0 }
 #enterar:enabled { float: right; width: 60px; height: 60px; background-color: #1eaed3; display: inline-block; border: 0; }
 #entervr:disabled { float: right; width: 60px; height: 60px; background-color: #dddddd; display: inline-block; border: 0; }
 #enterar:disabled { float: right; width: 60px; height: 60px; background-color: #dddddd; display: inline-block; border: 0; }
-#unity-logo { width: 50%; height: 50%; background: url('logo-envjoy-vertical.png') no-repeat center }
+#logo-envjoy { width: 50%; height: 50%; background: url('logo-envjoy-vertical.png') no-repeat center }
