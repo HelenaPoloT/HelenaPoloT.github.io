@@ -11,7 +11,9 @@
   <body>
     <div id="unity-container">
       <div id="unity-canvas-container">
-        <canvas id="unity-canvas" style="width: 100%; height: 100%;"></canvas>
+        <canvas id="unity-canvas" style="width: 100%; height: 100%;">
+        <img id="envoy-logo" src="Logo-Envjoy vertical.png">
+        </canvas>
       </div>
       <div id="unity-loading-bar">
         <div id="unity-logo"></div>
@@ -47,6 +49,7 @@
       var progressBarFull = document.querySelector("#unity-progress-bar-full");
       var fullscreenButton = document.querySelector("#unity-fullscreen-button");
       var unityInstance = null;
+      var logoEnvjoy = document.querySelector("envoy-logo");
       
 
       canvasContainer.style.width = "960px";
@@ -61,6 +64,7 @@
         }).then((instance) => {
           unityInstance = instance;
           loadingBar.style.display = "none";
+          logoEnvjoy.style.display = "none";
           /*if (fullscreenButton)
           {
             fullscreenButton.onclick = () => {*/
