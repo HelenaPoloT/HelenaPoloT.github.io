@@ -41,8 +41,8 @@
     var progressBarFull = document.querySelector("#unity-progress-bar-full");
     var unityInstance = null;
 
-    canvasContainer.style.width = "100%";
-    canvasContainer.style.height = "100%";
+    canvasContainer.style.width = "1080px";
+    canvasContainer.style.height = "1920px";
     loadingBar.style.display = "block";
 
     var script = document.createElement("script");
@@ -53,17 +53,15 @@
       }).then((instance) => {
         unityInstance = instance;
         loadingBar.style.display = "none";
-        unityInstance.Module.WebXR.toggleAR();
-
 
         // Activa automáticamente la funcionalidad de AR después de un retraso de 1 segundo (1000 milisegundos)
-       /* setTimeout(function() {
+       setTimeout(function() {
           unityInstance.Module.WebXR.toggleAR();
-        }, 1000);
+        }, 2000);
       }).catch((message) => {
         alert(message);
       });
-    };*/
+    };
     document.body.appendChild(script);
   });
 </script>
