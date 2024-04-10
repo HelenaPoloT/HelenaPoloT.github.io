@@ -54,8 +54,10 @@
         unityInstance = instance;
         loadingBar.style.display = "none";
 
-        // Activa automáticamente la funcionalidad de AR
-        unityInstance.Module.WebXR.toggleAR();
+        // Activa automáticamente la funcionalidad de AR después de un retraso de 1 segundo (1000 milisegundos)
+        setTimeout(function() {
+          unityInstance.Module.WebXR.toggleAR();
+        }, 1000);
       }).catch((message) => {
         alert(message);
       });
@@ -65,3 +67,4 @@
 </script>
 </body>
 </html>
+
