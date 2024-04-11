@@ -47,7 +47,7 @@
       var canvasContainer = document.querySelector("#unity-canvas-container");
       var loadingBar = document.querySelector("#unity-loading-bar");
       var progressBarFull = document.querySelector("#unity-progress-bar-full");
-      //var fullscreenButton = document.querySelector("#unity-fullscreen-button");
+      var fullscreenButton = document.querySelector("#unity-fullscreen-button");
       var unityInstance = null;
       var logoEnvjoy = document.querySelector("#logo-envjoy");
       
@@ -68,12 +68,12 @@
           //logoEnvjoy.style.display = "block";
           console.log( logoEnvjoy);
 
-          /*if (fullscreenButton)
+          if (fullscreenButton)
           {
-            fullscreenButton.onclick = () => {*/
+            fullscreenButton.onclick = () => {
               unityInstance.SetFullscreen(1);
-            //};
-          //}
+            };
+          }
         }).catch((message) => {
           alert(message);
         });
