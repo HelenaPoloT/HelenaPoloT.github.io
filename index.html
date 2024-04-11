@@ -13,7 +13,6 @@
       <div id="unity-canvas-container">
         <canvas id="unity-canvas" style="width: 1080px; height: 1920px">        
         <div id="logo-envjoy"></div>
-        <button id="enterar" value="Enter AR" disabled>Press to START</button>
       </canvas>
         
       </div>
@@ -81,22 +80,16 @@
       document.body.appendChild(script);
 
       let enterARButton = document.getElementById('enterar');
-      //let enterVRButton = document.getElementById('entervr');
 
       document.addEventListener('onARSupportedCheck', function (event) {
         enterARButton.disabled = !event.detail.supported;
       }, false);
-      /*document.addEventListener('onVRSupportedCheck', function (event) {
-        enterVRButton.disabled = !event.detail.supported;
-      }, false);*/
+     
 
       enterARButton.addEventListener('click', function (event) {
         unityInstance.Module.WebXR.toggleAR();
-        logoEnvjoy.style.display = "none";
       }, false);
-      /*enterVRButton.addEventListener('click', function (event) {
-        unityInstance.Module.WebXR.toggleVR();
-      }, false);*/
+      
     </script>
   </body>
 </html>
