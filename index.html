@@ -55,7 +55,7 @@
       canvasContainer.style.width = "10800px";
       canvasContainer.style.height = "1920px";
       loadingBar.style.display = "block";
-      logoEnvjoy.style.display = "none";
+      logoEnvjoy.style.display = "block";
 
       var script = document.createElement("script");
       script.src = loaderUrl;
@@ -65,7 +65,6 @@
         }).then((instance) => {
           unityInstance = instance;
           loadingBar.style.display = "none";
-          //logoEnvjoy.style.display = "block";
           console.log( logoEnvjoy);
 
           if (fullscreenButton)
@@ -92,7 +91,7 @@
 
       enterARButton.addEventListener('click', function (event) {
         unityInstance.Module.WebXR.toggleAR();
-        logoEnvjoy.style.display = "block";
+        logoEnvjoy.style.display = "none";
       }, false);
       /*enterVRButton.addEventListener('click', function (event) {
         unityInstance.Module.WebXR.toggleVR();
