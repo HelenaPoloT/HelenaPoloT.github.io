@@ -11,6 +11,6 @@ body { padding: 0; margin: 0 }
 #unity-build-title { float: right; margin-right: 10px; line-height: 38px; font-family: arial; font-size: 18px }
 #unity-fullscreen-button { cursor:pointer; float: right; width: 38px; height: 38px; background: url('fullscreen-button.png') no-repeat center }
 #unity-webxr-link { float: left; margin-right: 10px; line-height: 38px; font-family: arial; font-size: 18px }
-#enterar:enabled { width: 100%; height: 100%; background-color: #1eaed3; display: inline-block; border: 0; font-size: xx-large; font-weight: bold;}
+#enterar:enabled { width: 100%; height: 100%; background-color: #1eaed3; display: inline-block; border: 0; font-size: 30px; font-weight: bold;}
 #enterar:disabled { width: 100%; height: 100%; background-color: #dddddd; display: inline-block; border: 0; }
 #logo-envjoy { width: 500px; height: 500px; background: url('logo-envjoy.png') no-repeat center }
