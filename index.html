@@ -13,7 +13,8 @@
 </head>
 <body>
     <h1>AR Image Tracking with Three.js</h1>
-    <button onclick="startAR()">Start AR</button>
+    <!-- Botón para iniciar AR -->
+    <button id="start-button" onclick="startAR()">Start AR</button>
     
     <!-- Contenedor para la vista de AR -->
     <div id="ar-view"></div>
@@ -52,14 +53,14 @@
                 });
 
                 // Crear la imagen a rastrear
-                const imageToTrack = new XRImageTrackingTarget('path/to/your/image.jpg');
+                const imageToTrack = new XRImageTrackingTarget('qr-117.png');
 
                 // Configurar el rastreador de imágenes
                 const imageTracker = await session.createImageTracker(imageToTrack);
 
                 // Cargar el modelo 3D
                 const loader = new THREE.GLTFLoader();
-                loader.load('path/to/your/model.glb', function (gltf) {
+                loader.load('model_61a_-_bottlenose_dolphin-2.glb', function (gltf) {
                     scene.add(gltf.scene);
                 });
 
