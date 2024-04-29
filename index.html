@@ -42,28 +42,16 @@
                 const renderer = new THREE.WebGLRenderer({ canvas });
                 renderer.setSize(window.innerWidth, window.innerHeight);
 
-                // Obtener la pose del dispositivo.
-                // XRFrame.getViewerPose puede devolver nulo mientras la sesión intenta establecer el seguimiento.
-                const pose = frame.getViewerPose(this.localReferenceSpace);
-                if (pose) {
-                    // En AR móvil, solo tenemos una vista.
-                    const view = pose.views[0];
-
-                    // Obtener el tamaño del viewport desde la capa baseLayer de la sesión XR.
-                    const viewport = this.xrSession.renderState.baseLayer.getViewport(view);
-                    
-                    // Configurar el tamaño del renderizador Three.js.
-                    this.renderer.setSize(viewport.width, viewport.height);
-
-                    // Utilizar la matriz de transformación de la vista y la matriz de proyección para configurar la cámara THREE.
-                    this.camera.matrix.fromArray(view.transform.matrix);
-                    this.camera.projectionMatrix.fromArray(view.projectionMatrix);
-                    this.camera.updateMatrixWorld(true);
-
-                    // Renderizar la escena con THREE.WebGLRenderer.
-                    this.renderer.render(this.scene, this.camera);
-                }
-
+                // Configurar la posición de la cámara para coincidir con la cámara de la sesión de AR
+                const xrViewerPose = await session.requestFrameOfReference('viewer');
+                const viewerSpace = await session.requestAnimationFrame((time, frame) => {
+                    const pose = frame.getViewerPose(xrViewerPose);
+                    if (pose) {
+                        const viewerPose = pose.views[0];
+                        camera.matrix.fromArray(viewerPose.transform.matrix);
+                        camera.matrix.decompose(camera.position, camera.quaternion, camera.scale);
+                    }
+                });
 
                 // Crear la imagen a rastrear
                 const imageToTrack = new XRImageTrackingTarget('qr-117.png');
