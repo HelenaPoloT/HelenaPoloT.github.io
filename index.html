@@ -26,7 +26,7 @@
                 // Solicitar la sesión de AR
                 const session = await navigator.xr.requestSession('immersive-ar', {
                     // Requerir ARCore para la sesión de AR
-                    requiredFeatures: ['local', 'hit-test', 'image-tracking'],
+                    requiredFeatures: ['local', 'hit-test'],
                     optionalFeatures: ['dom-overlay'],
                     domOverlay: { root: document.body }
                 });
