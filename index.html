@@ -22,14 +22,34 @@
         // Función para inicializar la experiencia de AR
         async function startAR() {
             try {
-                // Código para iniciar la sesión de AR y el rastreo de imágenes
+                // Solicitar la sesión de AR
+                const session = await navigator.xr.requestSession('immersive-ar', {
+                    // Requerir ARCore para la sesión de AR
+                    requiredFeatures: ['local', 'hit-test', 'image-tracking'],
+                    optionalFeatures: ['dom-overlay'],
+                    domOverlay: { root: document.body }
+                });
+
+                // Crear el canvas para la vista de AR
+                const canvas = document.createElement('canvas');
+                document.body.appendChild(canvas);
 
                 // Configurar Three.js
                 const scene = new THREE.Scene();
                 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-                const renderer = new THREE.WebGLRenderer();
+                const renderer = new THREE.WebGLRenderer({ canvas });
                 renderer.setSize(window.innerWidth, window.innerHeight);
-                document.body.appendChild(renderer.domElement);
+
+                // Configurar la posición de la cámara para coincidir con la cámara de la sesión de AR
+                const xrViewerPose = await session.requestFrameOfReference('viewer');
+                const viewerSpace = await session.requestAnimationFrame((time, frame) => {
+                    const pose = frame.getViewerPose(xrViewerPose);
+                    if (pose) {
+                        const viewerPose = pose.views[0];
+                        camera.matrix.fromArray(viewerPose.transform.matrix);
+                        camera.matrix.decompose(camera.position, camera.quaternion, camera.scale);
+                    }
+                });
 
                 // Crear una caja como ejemplo de modelo 3D (reemplaza esto con tu modelo)
                 const geometry = new THREE.BoxGeometry();
@@ -37,19 +57,8 @@
                 const cube = new THREE.Mesh(geometry, material);
                 scene.add(cube);
 
-                // Configurar la posición de la cámara
-                camera.position.z = 5;
-
-                // Renderizar la escena
-                function animate() {
-                    requestAnimationFrame(animate);
-                    cube.rotation.x += 0.01;
-                    cube.rotation.y += 0.01;
-                    renderer.render(scene, camera);
-                }
-                animate();
-
                 // Resto del código para el rastreo de imágenes y la manipulación del modelo
+                // ...
 
             } catch (error) {
                 console.error('Error al iniciar la experiencia de AR:', error);
