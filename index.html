@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ARCore Image Tracking with Three.js Model</title>
+    <title>AR Image Tracking with Three.js</title>
     <!-- Importar la librería de WebXR Polyfill -->
     <script src="https://cdn.jsdelivr.net/npm/webxr-polyfill@latest"></script>
     <!-- Importar la librería de WebXR de Google -->
@@ -12,12 +12,11 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
 <body>
-    <h1>ARCore Image Tracking with Three.js Model</h1>
-    <!-- Botón para iniciar AR -->
+    <h1>AR Image Tracking with Three.js</h1>
     <button onclick="startAR()">Start AR</button>
     
-    <!-- Contenedor para el modelo 3D -->
-    <div id="model-container"></div>
+    <!-- Contenedor para la vista de AR -->
+    <div id="ar-view"></div>
     
     <script>
         // Función para inicializar la experiencia de AR
@@ -52,14 +51,34 @@
                     }
                 });
 
-                // Crear una caja como ejemplo de modelo 3D (reemplaza esto con tu modelo)
-                const geometry = new THREE.BoxGeometry();
-                const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-                const cube = new THREE.Mesh(geometry, material);
-                scene.add(cube);
+                // Crear la imagen a rastrear
+                const imageToTrack = new XRImageTrackingTarget('path/to/your/image.jpg');
 
-                // Resto del código para el rastreo de imágenes y la manipulación del modelo
-                // ...
+                // Configurar el rastreador de imágenes
+                const imageTracker = await session.createImageTracker(imageToTrack);
+
+                // Cargar el modelo 3D
+                const loader = new THREE.GLTFLoader();
+                loader.load('path/to/your/model.glb', function (gltf) {
+                    scene.add(gltf.scene);
+                });
+
+                // Añadir evento de rastreo de imágenes
+                imageTracker.addEventListener('imagetracking', event => {
+                    const trackedImage = event.frame.getTrackedImage(imageToTrack);
+                    if (trackedImage) {
+                        // Actualizar la posición del modelo 3D para que coincida con la posición de la imagen rastreada
+                        // Esto implicaría ajustar la posición y la orientación del modelo en función de la posición y la orientación de la imagen rastreada
+                    }
+                });
+
+                // Función para el bucle de renderizado
+                function animate() {
+                    requestAnimationFrame(animate);
+                    // Renderizar la escena Three.js
+                    renderer.render(scene, camera);
+                }
+                animate();
 
             } catch (error) {
                 console.error('Error al iniciar la experiencia de AR:', error);
