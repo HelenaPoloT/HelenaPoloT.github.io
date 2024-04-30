@@ -3,15 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-  <title>Hello WebXR4!</title>
+  <title>Marker Tracking WebXR</title>
   <!-- Importar Three.js -->
   <script src="https://unpkg.com/three@0.126.0/build/three.js"></script>
-  <script src="https://unpkg.com/three@0.126.0/examples/js/loaders/GLTFLoader.js"></script>
 </head>
 <body>
 
 <!-- Botón para iniciar la experiencia de AR -->
-<button onclick="activateXR()">Start Hello WebXR</button>
+<button onclick="activateXR()">Start Marker Tracking</button>
 
 <script>
   async function activateXR() {
@@ -38,27 +37,27 @@
       camera.matrixAutoUpdate = false;
 
       // Iniciar la sesión de WebXR
-      const session = await navigator.xr.requestSession("immersive-ar", {requiredFeatures: ['hit-test', 'image-tracking']});
+      const session = await navigator.xr.requestSession("immersive-ar", {requiredFeatures: ['hit-test', 'marker-tracking']});
       session.updateRenderState({
         baseLayer: new XRWebGLLayer(session, gl)
       });
       const referenceSpace = await session.requestReferenceSpace('local');
 
-      // Crear un XRImageTrackingSource para rastrear la imagen
-      const image = new Image();
-      image.src = 'qr-117.png';
-      await image.decode(); // Esperar a que la imagen se cargue completamente
-      const imageTrackingSource = await session.createImageTrackingSource(image);
+      // Crear un XRMarkerTracker para rastrear marcadores
+      const markerTracker = await session.createMarkerTracker();
 
-      // Crear un XRAnchor para colocar el modelo
-      const anchor = await session.createAnchor(new XRRigidTransform()); // Inicialmente colocar el modelo en el origen
+      // Escuchar eventos de nuevos marcadores detectados
+      markerTracker.addEventListener('markerfound', (event) => {
+        const marker = event.marker;
+        console.log('Nuevo marcador detectado:', marker.id);
+        // Aquí puedes agregar lógica para manejar el nuevo marcador detectado
+      });
 
-      const loader = new THREE.GLTFLoader();
-      let model;
-      loader.load("model_61a_-_bottlenose_dolphin-2.glb", function(gltf) {
-        model = gltf.scene;
-        model.position.set(0, 0, -1); // Colocar el modelo detrás del usuario
-        scene.add(model);
+      // Escuchar eventos de marcadores perdidos
+      markerTracker.addEventListener('markerlost', (event) => {
+        const marker = event.marker;
+        console.log('Se perdió el marcador:', marker.id);
+        // Aquí puedes agregar lógica para manejar el marcador perdido
       });
 
       // Crear el bucle de renderizado de la escena de AR
@@ -75,15 +74,6 @@
           camera.matrix.fromArray(view.transform.matrix);
           camera.projectionMatrix.fromArray(view.projectionMatrix);
           camera.updateMatrixWorld(true);
-
-          // Actualizar la posición del modelo según el anchor
-          if (model) {
-            const modelPose = frame.getPose(anchor.space, referenceSpace);
-            if (modelPose) {
-              model.position.set(modelPose.transform.position.x, modelPose.transform.position.y, modelPose.transform.position.z);
-              model.quaternion.set(modelPose.transform.orientation.x, modelPose.transform.orientation.y, modelPose.transform.orientation.z, modelPose.transform.orientation.w);
-            }
-          }
 
           renderer.render(scene, camera);
         }
@@ -105,5 +95,3 @@
 </script>
 </body>
 </html>
-
-
