@@ -56,7 +56,7 @@
       // Cargar el modelo
       if (!model) {
         const loader = new THREE.GLTFLoader();
-        loader.load("Wmodel_61a_-_bottlenose_dolphin-2.glb", function(gltf) {
+        loader.load("model_61a_-_bottlenose_dolphin-2.glb", function(gltf) {
           model = gltf.scene;
           model.visible = false; // El modelo se hace invisible por defecto
           scene.add(model);
