@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-  <title>Hello WebXR2!</title>
+  <title>Hello WebXR3!</title>
   <!-- Importar Three.js -->
   <script src="https://unpkg.com/three@0.126.0/build/three.js"></script>
   <script src="https://unpkg.com/three@0.126.0/examples/js/loaders/GLTFLoader.js"></script>
@@ -53,35 +53,41 @@
       // Perform hit testing using the viewer as origin.
       const hitTestSource = await session.requestHitTestSource({ space: viewerSpace });
 
-      // Cargar el modelo
-      if (!model) {
+      // Función para cargar el modelo
+      function loadModel() {
         const loader = new THREE.GLTFLoader();
         loader.load("WhiteSeabream.gltf", function(gltf) {
           model = gltf.scene;
           model.visible = false; // El modelo se hace invisible por defecto
           scene.add(model);
+        },
+        // Función de progreso
+        function(xhr) {
+          console.log((xhr.loaded / xhr.total * 100) + '% cargado');
+        },
+        // Función de error
+        function(error) {
+          console.error('Error al cargar el modelo:', error);
         });
       }
 
-      // Cargar el retículo
-      if (!reticle) {
-        const reticleLoader = new THREE.GLTFLoader();
-        reticleLoader.load("https://immersive-web.github.io/webxr-samples/media/gltf/reticle/reticle.gltf", function(gltf) {
-          reticle = gltf.scene;
-          reticle.visible = false; // El retículo se hace invisible por defecto
-          scene.add(reticle);
-        });
+      // Verificar si el modelo está cargado correctamente
+      function isModelLoaded() {
+        return model !== null;
       }
 
       // Añadir evento de selección
       session.addEventListener("select", (event) => {
-        if (model && reticle) {
+        if (isModelLoaded() && reticle) {
           // Clonar el modelo y establecer su posición en la posición del retículo
           const clone = model.clone();
           clone.position.copy(reticle.position);
           scene.add(clone);
         }
       });
+
+      // Llamar a la función para cargar el modelo al iniciar la experiencia de AR
+      loadModel();
 
       // Bucle de renderizado de la escena de AR
       const onXRFrame = (time, frame) => {
@@ -123,3 +129,4 @@
 </script>
 </body>
 </html>
+
