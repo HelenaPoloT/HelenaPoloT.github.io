@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+<<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-  <title>Hello WebXR5!</title>
+  <title>Hello WebXR2!</title>
   <!-- Importar Three.js -->
   <script src="https://unpkg.com/three@0.126.0/build/three.js"></script>
   <script src="https://unpkg.com/three@0.126.0/examples/js/loaders/GLTFLoader.js"></script>
@@ -14,7 +14,7 @@
 <button onclick="activateXR()">Start Hello WebXR</button>
 
 <script>
-  let model = null; // Variable para almacenar el modelo clonado
+  let flower = null; // Variable para almacenar el modelo clonado
   let reticle = null; // Variable para el retículo de selección
 
   // Función para cargar el modelo al iniciar la experiencia de AR
@@ -48,48 +48,40 @@
       });
       const referenceSpace = await session.requestReferenceSpace('local');
 
-      // Create another XRReferenceSpace that has the viewer as the origin.
+      // Crear otro XRReferenceSpace que tiene el espectador como origen.
       const viewerSpace = await session.requestReferenceSpace('viewer');
-      // Perform hit testing using the viewer as origin.
+      // Realizar pruebas de selección utilizando el espectador como origen.
       const hitTestSource = await session.requestHitTestSource({ space: viewerSpace });
 
-      // Función para cargar el modelo
-      function loadModel() {
+      // Cargar el modelo
+      if (!flower) {
         const loader = new THREE.GLTFLoader();
         loader.load("https://immersive-web.github.io/webxr-samples/media/gltf/sunflower/sunflower.gltf", function(gltf) {
-          model = gltf.scene;
-          model.visible = false; // El modelo se hace invisible por defecto
-          scene.add(model);
-        },
-    
-        // Función de progreso
-       /* function(xhr) {
-          console.log((xhr.loaded / xhr.total * 100) + '% cargado');
-        },
-        // Función de error
-        function(error) {
-          console.error('Error al cargar el modelo:', error);
-        }*/);
+          flower = gltf.scene;
+          flower.visible = false; // El modelo se hace invisible por defecto
+          scene.add(flower);
+        });
       }
 
-      // Verificar si el modelo está cargado correctamente
-      /*function isModelLoaded() {
-        return model !== null;
-      }*/
-    
+      // Cargar el retículo
+      if (!reticle) {
+        const reticleLoader = new THREE.GLTFLoader();
+        reticleLoader.load("https://immersive-web.github.io/webxr-samples/media/gltf/reticle/reticle.gltf", function(gltf) {
+          reticle = gltf.scene;
+          reticle.visible = false; // El retículo se hace invisible por defecto
+          scene.add(reticle);
+        });
+      }
+
       // Añadir evento de selección
       session.addEventListener("select", (event) => {
-        if (isModelLoaded() && reticle) {
+        if (flower && reticle) {
           // Clonar el modelo y establecer su posición en la posición del retículo
-          const clone = model.clone();
+          const clone = flower.clone();
           clone.position.copy(reticle.position);
           scene.add(clone);
         }
       });
-      
-
-      // Llamar a la función para cargar el modelo al iniciar la experiencia de AR
-      loadModel();
 
       // Bucle de renderizado de la escena de AR
       const onXRFrame = (time, frame) => {
@@ -120,7 +112,8 @@
       // Manejar el cierre de la sesión de WebXR
       const onSessionEnd = () => {
         session.removeEventListener('end', onSessionEnd);
-        renderer.dispose(); // Liberar
+        renderer.dispose(); // Liberar los recursos del renderizador
+        canvas.remove(); // Eliminar el canvas de la página
       };
       session.addEventListener('end', onSessionEnd);
 
@@ -131,4 +124,3 @@
 </script>
 </body>
 </html>
-
