@@ -1,100 +1,106 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AR Image Tracking with Unity Model</title>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: black;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <title>Hello WebXR!</title>
 
-        canvas {
-            width: 100%;
-            height: 100%;
-            display: block;
-        }
-    </style>
+  <!-- three.js -->
+  <script src="https://unpkg.com/three@0.126.0/build/three.js"></script>
 </head>
 <body>
-    <script src="https://cdn.jsdelivr.net/npm/webxr-polyfill@latest"></script>
-    <script src="https://cdn.jsdelivr.net/npm/webxr-ar-module@latest"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@google/model-viewer@1/dist/model-viewer.min.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', async () => {
-            try {
-                // Solicitar la sesión de AR
-                const session = await navigator.xr.requestSession('immersive-ar', {
-                    requiredFeatures: ['hit-test', 'image-tracking']
-                });
 
-                // Crear la capa base para renderizar la escena de AR
-                const layer = new XRWebGLLayer(session, new THREE.WebGLRenderer().getContext());
+<!-- Starting an immersive WebXR session requires user interaction.
+    We start this one with a simple button. -->
+<button onclick="activateXR()">Start Hello WebXR</button>
+<script>
+async function activateXR() {
+  // Add a canvas element and initialize a WebGL context that is compatible with WebXR.
+  const canvas = document.createElement("canvas");
+  document.body.appendChild(canvas);
+  const gl = canvas.getContext("webgl", {xrCompatible: true});
 
-                // Configurar la capa base
-                session.updateRenderState({
-                    baseLayer: layer
-                });
+  // To be continued in upcoming steps.
+}
 
-                // Crear la escena de Three.js
-                const scene = new THREE.Scene();
+const scene = new THREE.Scene();
 
-                // Obtener el entorno de referencia local
-                const referenceSpace = await session.requestReferenceSpace('local');
+// The cube will have a different color on each side.
+const materials = [
+  new THREE.MeshBasicMaterial({color: 0xff0000}),
+  new THREE.MeshBasicMaterial({color: 0x0000ff}),
+  new THREE.MeshBasicMaterial({color: 0x00ff00}),
+  new THREE.MeshBasicMaterial({color: 0xff00ff}),
+  new THREE.MeshBasicMaterial({color: 0x00ffff}),
+  new THREE.MeshBasicMaterial({color: 0xffff00})
+];
 
-                // Obtener el rastreador de imágenes
-                const imageTracker = await session.requestImageTracker();
+// Create the cube and add it to the demo scene.
+const cube = new THREE.Mesh(new THREE.BoxBufferGeometry(0.2, 0.2, 0.2), materials);
+cube.position.set(1, 1, 1);
+scene.add(cube);
 
-                // Añadir la imagen a rastrear
-                const imageTarget = new XRImageTrackingTarget("qr-117.png");
-                imageTracker.addTarget(imageTarget);
 
-                // Cargar el modelo desde Unity en formato glTF
-                const loader = new THREE.GLTFLoader();
-                loader.load('model_61a_-_bottlenose_dolphin-2.glb', function (gltf) {
-                    // Ajustar la escala y posición del modelo
-                    gltf.scene.scale.set(0.1, 0.1, 0.1);
-                    gltf.scene.position.set(0, 0, -0.5);
+// Set up the WebGLRenderer, which handles rendering to the session's base layer.
+const renderer = new THREE.WebGLRenderer({
+  alpha: true,
+  preserveDrawingBuffer: true,
+  canvas: canvas,
+  context: gl
+});
+renderer.autoClear = false;
 
-                    // Añadir el modelo a la escena
-                    scene.add(gltf.scene);
-                });
+// The API directly updates the camera matrices.
+// Disable matrix auto updates so three.js doesn't attempt
+// to handle the matrices independently.
+const camera = new THREE.PerspectiveCamera();
+camera.matrixAutoUpdate = false;
 
-                // Bucle de renderizado
-                function render(timestamp, xrFrame) {
-                    // Obtener la pose del visor
-                    const pose = xrFrame.getViewerPose(referenceSpace);
-                    if (pose) {
-                        // Actualizar la posición y orientación del modelo cuando la imagen sea rastreada
-                        const trackedImage = xrFrame.getTrackedImage(imageTarget);
-                        if (trackedImage) {
-                            // Obtener la matriz de transformación de la imagen rastreada
-                            const modelMatrix = trackedImage.getModelMatrix();
-                            
-                            // Actualizar la posición y orientación del modelo en la escena de Three.js
-                            gltf.scene.matrix.fromArray(modelMatrix);
-                            gltf.scene.matrix.decompose(gltf.scene.position, gltf.scene.quaternion, gltf.scene.scale);
-                        }
-                    }
 
-                    // Renderizar la escena
-                    session.requestAnimationFrame(render);
-                }
+// Initialize a WebXR session using "immersive-ar".
+const session = await navigator.xr.requestSession("immersive-ar");
+session.updateRenderState({
+  baseLayer: new XRWebGLLayer(session, gl)
+});
 
-                session.requestAnimationFrame(render);
-            } catch (error) {
-                console.error('Error al iniciar la experiencia de AR:', error);
-            }
-        });
-    </script>
+// A 'local' reference space has a native origin that is located
+// near the viewer's position at the time the session was created.
+const referenceSpace = await session.requestReferenceSpace('local');
+
+
+// Create a render loop that allows us to draw on the AR view.
+const onXRFrame = (time, frame) => {
+  // Queue up the next draw request.
+  session.requestAnimationFrame(onXRFrame);
+
+  // Bind the graphics framebuffer to the baseLayer's framebuffer
+  gl.bindFramebuffer(gl.FRAMEBUFFER, session.renderState.baseLayer.framebuffer)
+
+  // Retrieve the pose of the device.
+  // XRFrame.getViewerPose can return null while the session attempts to establish tracking.
+  const pose = frame.getViewerPose(referenceSpace);
+  if (pose) {
+    // In mobile AR, we only have one view.
+    const view = pose.views[0];
+
+    const viewport = session.renderState.baseLayer.getViewport(view);
+    renderer.setSize(viewport.width, viewport.height)
+
+    // Use the view's transform matrix and projection matrix to configure the THREE.camera.
+    camera.matrix.fromArray(view.transform.matrix)
+    camera.projectionMatrix.fromArray(view.projectionMatrix);
+    camera.updateMatrixWorld(true);
+
+    // Render the scene with THREE.WebGLRenderer.
+    renderer.render(scene, camera)
+  }
+}
+session.requestAnimationFrame(onXRFrame);
+
+
+
+</script>
 </body>
 </html>
 
