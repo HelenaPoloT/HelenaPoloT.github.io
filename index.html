@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-  <title>Hello WebXR!</title>
+  <title>Hello WebXR2!</title>
   <!-- Importar Three.js -->
   <script src="https://unpkg.com/three@0.126.0/build/three.js"></script>
 </head>
@@ -61,7 +61,7 @@
         session.requestAnimationFrame(onXRFrame);
 
         gl.bindFramebuffer(gl.FRAMEBUFFER, session.renderState.baseLayer.framebuffer); // Aquí se enlaza el framebuffer
-        
+
         const pose = frame.getViewerPose(referenceSpace);
         if (pose) {
           const view = pose.views[0];
