@@ -6,7 +6,8 @@
   <title>Hello WebXR2!</title>
   <!-- Importar Three.js -->
   <script src="https://unpkg.com/three@0.126.0/build/three.js"></script>
-  <script src="https://unpkg.com/three@0.126.0/examples/js/loaders/GLTFLoader.js"></script>
+<script src="https://unpkg.com/three@0.126.0/examples/js/loaders/GLTFLoader.js"></script>
+
 </head>
 <body>
 
@@ -14,10 +15,6 @@
 <button onclick="activateXR()">Start Hello WebXR</button>
 
 <script>
-  let flower = null; // Variable para almacenar el modelo clonado
-  let reticle = null; // Variable para el retículo de selección
-
-  // Función para cargar el modelo al iniciar la experiencia de AR
   async function activateXR() {
     try {
       // Crear un canvas para el contexto WebGL
@@ -53,43 +50,42 @@
       });
       const referenceSpace = await session.requestReferenceSpace('local');
 
-      // Crear otro XRReferenceSpace que tiene el espectador como origen.
-      const viewerSpace = await session.requestReferenceSpace('viewer');
-      // Realizar pruebas de selección utilizando el espectador como origen.
-      const hitTestSource = await session.requestHitTestSource({ space: viewerSpace });
+      // Create another XRReferenceSpace that has the viewer as the origin.
+const viewerSpace = await session.requestReferenceSpace('viewer');
+// Perform hit testing using the viewer as origin.
+const hitTestSource = await session.requestHitTestSource({ space: viewerSpace });
 
-      // Cargar el modelo
-        const loader = new THREE.GLTFLoader();
-        loader.load("https://immersive-web.github.io/webxr-samples/media/gltf/sunflower/sunflower.gltf", function(gltf) {
-          flower = gltf.scene;
-          flower.visible = false; // El modelo se hace invisible por defecto
-          scene.add(flower);
-        });
 
-      // Cargar el retículo
-   
-          loader.load("https://immersive-web.github.io/webxr-samples/media/gltf/reticle/reticle.gltf", function(gltf) {
-          reticle = gltf.scene;
-          reticle.visible = false; // El retículo se hace invisible por defecto
-          scene.add(reticle);
-        });
-      
 
-      // Añadir evento de selección
-      session.addEventListener("select", (event) => {
-        if (flower) {
-          // Clonar el modelo y establecer su posición en la posición del retículo
-          const clone = flower.clone();
-          clone.position.copy(reticle.position);
-          scene.add(clone);
-        }
-      });
 
-      // Bucle de renderizado de la escena de AR
+
+      const loader = new THREE.GLTFLoader();
+let reticle;
+loader.load("https://immersive-web.github.io/webxr-samples/media/gltf/reticle/reticle.gltf", function(gltf) {
+  reticle = gltf.scene;
+  reticle.visible = false;
+  scene.add(reticle);
+})
+
+let flower;
+loader.load("https://immersive-web.github.io/webxr-samples/media/gltf/sunflower/sunflower.gltf", function(gltf) {
+  flower = gltf.scene;
+});
+
+session.addEventListener("select", (event) => {
+  if (flower) {
+    const clone = flower.clone();
+    clone.position.copy(reticle.position);
+    scene.add(clone);
+  }
+});
+
+
+      // Crear el bucle de renderizado de la escena de AR
       const onXRFrame = (time, frame) => {
         session.requestAnimationFrame(onXRFrame);
 
-        gl.bindFramebuffer(gl.FRAMEBUFFER, session.renderState.baseLayer.framebuffer); // Enlazar el framebuffer
+        gl.bindFramebuffer(gl.FRAMEBUFFER, session.renderState.baseLayer.framebuffer); // Aquí se enlaza el framebuffer
 
         const pose = frame.getViewerPose(referenceSpace);
         if (pose) {
@@ -100,12 +96,12 @@
           camera.projectionMatrix.fromArray(view.projectionMatrix);
           camera.updateMatrixWorld(true);
           const hitTestResults = frame.getHitTestResults(hitTestSource);
-          if (hitTestResults.length > 0 && reticle) {
-            const hitPose = hitTestResults[0].getPose(referenceSpace);
-            reticle.visible = true;
-            reticle.position.set(hitPose.transform.position.x, hitPose.transform.position.y, hitPose.transform.position.z)
-            reticle.updateMatrixWorld(true);
-          }
+        if (hitTestResults.length > 0 && reticle) {
+        const hitPose = hitTestResults[0].getPose(referenceSpace);
+        reticle.visible = true;
+        reticle.position.set(hitPose.transform.position.x, hitPose.transform.position.y, hitPose.transform.position.z)
+        reticle.updateMatrixWorld(true);
+        }
           renderer.render(scene, camera);
         }
       };
