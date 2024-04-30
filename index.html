@@ -11,10 +11,10 @@
 <body>
 
 <!-- Botón para iniciar la experiencia de AR -->
-<button onclick="activateXR()">Start Hello WebXR2</button>
+<button onclick="activateXR()">Start Hello WebXR</button>
 
 <script>
-  let fish = null; // Variable para almacenar el modelo clonado
+  let model = null; // Variable para almacenar el modelo clonado
   let reticle = null; // Variable para el retículo de selección
 
   // Función para cargar el modelo al iniciar la experiencia de AR
@@ -48,18 +48,18 @@
       });
       const referenceSpace = await session.requestReferenceSpace('local');
 
-      // Crear otro XRReferenceSpace que tiene el espectador como origen.
+      // Create another XRReferenceSpace that has the viewer as the origin.
       const viewerSpace = await session.requestReferenceSpace('viewer');
-      // Realizar pruebas de selección utilizando el espectador como origen.
+      // Perform hit testing using the viewer as origin.
       const hitTestSource = await session.requestHitTestSource({ space: viewerSpace });
 
       // Cargar el modelo
-      if (!fish) {
+      if (!model) {
         const loader = new THREE.GLTFLoader();
-        loader.load("WhiteSeabream.gltf", function(gltf) {
-          fish = gltf.scene;
-          fish.visible = false; // El modelo se hace invisible por defecto
-          scene.add(fish);
+        loader.load("Wmodel_61a_-_bottlenose_dolphin-2.glb", function(gltf) {
+          model = gltf.scene;
+          model.visible = false; // El modelo se hace invisible por defecto
+          scene.add(model);
         });
       }
 
@@ -75,9 +75,9 @@
 
       // Añadir evento de selección
       session.addEventListener("select", (event) => {
-        if (fish && reticle) {
+        if (model && reticle) {
           // Clonar el modelo y establecer su posición en la posición del retículo
-          const clone = fish.clone();
+          const clone = model.clone();
           clone.position.copy(reticle.position);
           scene.add(clone);
         }
@@ -112,8 +112,7 @@
       // Manejar el cierre de la sesión de WebXR
       const onSessionEnd = () => {
         session.removeEventListener('end', onSessionEnd);
-        renderer.dispose(); // Liberar los recursos del renderizador
-        canvas.remove(); // Eliminar el canvas de la página
+        renderer.dispose(); // Liberar
       };
       session.addEventListener('end', onSessionEnd);
 
