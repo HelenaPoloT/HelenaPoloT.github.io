@@ -67,7 +67,7 @@
 
                 //Crear el modelo
                 let fish;
-                loader.load("WhiteSeabream.gltf", function(gltf) 
+                loader.load("ShipPrefab.glb", function(gltf) 
                 {
                     fish = gltf.scene;
                     reticle.visible = false; //Desactivar el reticulo una vez se carga el modelo
@@ -79,7 +79,6 @@
                     {
                         const clone = fish.clone();
                         clone.position.copy(reticle.position);
-                        clone.position.y -= 0.5;
                         scene.add(clone);
                         reticle.visible = false; // Desactivar el retículo una vez que se carga el modelo
                     }
