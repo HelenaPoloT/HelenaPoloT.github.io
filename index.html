@@ -1,4 +1,4 @@
-<<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -28,6 +28,11 @@
       // Crear la escena de Three.js
       const scene = new THREE.Scene();
 
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.3);
+        directionalLight.position.set(10, 15, 10);
+        scene.add(directionalLight);
+
+
       // Configurar el renderizador de Three.js
       const renderer = new THREE.WebGLRenderer({
         alpha: true,
@@ -54,28 +59,25 @@
       const hitTestSource = await session.requestHitTestSource({ space: viewerSpace });
 
       // Cargar el modelo
-      if (!flower) {
         const loader = new THREE.GLTFLoader();
         loader.load("https://immersive-web.github.io/webxr-samples/media/gltf/sunflower/sunflower.gltf", function(gltf) {
           flower = gltf.scene;
           flower.visible = false; // El modelo se hace invisible por defecto
           scene.add(flower);
         });
-      }
 
       // Cargar el retículo
-      if (!reticle) {
-        const reticleLoader = new THREE.GLTFLoader();
-        reticleLoader.load("https://immersive-web.github.io/webxr-samples/media/gltf/reticle/reticle.gltf", function(gltf) {
+   
+          loader.load("https://immersive-web.github.io/webxr-samples/media/gltf/reticle/reticle.gltf", function(gltf) {
           reticle = gltf.scene;
           reticle.visible = false; // El retículo se hace invisible por defecto
           scene.add(reticle);
         });
-      }
+      
 
       // Añadir evento de selección
       session.addEventListener("select", (event) => {
-        if (flower && reticle) {
+        if (flower) {
           // Clonar el modelo y establecer su posición en la posición del retículo
           const clone = flower.clone();
           clone.position.copy(reticle.position);
