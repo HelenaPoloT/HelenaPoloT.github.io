@@ -3,90 +3,99 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AR Image Tracking with Three.js</title>
-    <!-- Importar la librería de WebXR Polyfill -->
-    <script src="https://cdn.jsdelivr.net/npm/webxr-polyfill@latest"></script>
-    <!-- Importar la librería de WebXR de Google -->
-    <script src="https://cdn.jsdelivr.net/npm/webxr-ar-module@latest"></script>
-    <!-- Importar Three.js -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <title>AR Image Tracking with Unity Model</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: black;
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+    </style>
 </head>
 <body>
-    <h1>AR Image Tracking with Three.js</h1>
-    <!-- Botón para iniciar AR -->
-    <button id="start-button" onclick="startAR()">Start AR</button>
-    
-    <!-- Contenedor para la vista de AR -->
-    <div id="ar-view"></div>
-    
+    <script src="https://cdn.jsdelivr.net/npm/webxr-polyfill@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/webxr-ar-module@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@google/model-viewer@1/dist/model-viewer.min.js"></script>
     <script>
-        // Función para inicializar la experiencia de AR
-        async function startAR() {
-            console.log("start");
+        document.addEventListener('DOMContentLoaded', async () => {
             try {
                 // Solicitar la sesión de AR
                 const session = await navigator.xr.requestSession('immersive-ar', {
-                    // Requerir ARCore para la sesión de AR
-                    requiredFeatures: ['local', 'hit-test', 'image-tracking'],
-                    optionalFeatures: ['dom-overlay'],
-                    domOverlay: { root: document.body }
+                    requiredFeatures: ['hit-test', 'image-tracking']
                 });
 
-                // Crear el canvas para la vista de AR
-                const canvas = document.createElement('canvas');
-                document.body.appendChild(canvas);
+                // Crear la capa base para renderizar la escena de AR
+                const layer = new XRWebGLLayer(session, new THREE.WebGLRenderer().getContext());
 
-                // Configurar Three.js
+                // Configurar la capa base
+                session.updateRenderState({
+                    baseLayer: layer
+                });
+
+                // Crear la escena de Three.js
                 const scene = new THREE.Scene();
-                const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-                const renderer = new THREE.WebGLRenderer({ canvas });
-                renderer.setSize(window.innerWidth, window.innerHeight);
 
-                // Configurar la posición de la cámara para coincidir con la cámara de la sesión de AR
-                const xrViewerPose = await session.requestFrameOfReference('viewer');
-                const viewerSpace = await session.requestAnimationFrame((time, frame) => {
-                    const pose = frame.getViewerPose(xrViewerPose);
-                    if (pose) {
-                        const viewerPose = pose.views[0];
-                        camera.matrix.fromArray(viewerPose.transform.matrix);
-                        camera.matrix.decompose(camera.position, camera.quaternion, camera.scale);
-                    }
-                });
+                // Obtener el entorno de referencia local
+                const referenceSpace = await session.requestReferenceSpace('local');
 
-                // Crear la imagen a rastrear
-                const imageToTrack = new XRImageTrackingTarget('qr-117.png');
+                // Obtener el rastreador de imágenes
+                const imageTracker = await session.requestImageTracker();
 
-                // Configurar el rastreador de imágenes
-                const imageTracker = await session.createImageTracker(imageToTrack);
+                // Añadir la imagen a rastrear
+                const imageTarget = new XRImageTrackingTarget("qr-117.png");
+                imageTracker.addTarget(imageTarget);
 
-                // Cargar el modelo 3D
+                // Cargar el modelo desde Unity en formato glTF
                 const loader = new THREE.GLTFLoader();
                 loader.load('model_61a_-_bottlenose_dolphin-2.glb', function (gltf) {
+                    // Ajustar la escala y posición del modelo
+                    gltf.scene.scale.set(0.1, 0.1, 0.1);
+                    gltf.scene.position.set(0, 0, -0.5);
+
+                    // Añadir el modelo a la escena
                     scene.add(gltf.scene);
                 });
 
-                // Añadir evento de rastreo de imágenes
-                imageTracker.addEventListener('imagetracking', event => {
-                    const trackedImage = event.frame.getTrackedImage(imageToTrack);
-                    if (trackedImage) {
-                        // Actualizar la posición del modelo 3D para que coincida con la posición de la imagen rastreada
-                        // Esto implicaría ajustar la posición y la orientación del modelo en función de la posición y la orientación de la imagen rastreada
+                // Bucle de renderizado
+                function render(timestamp, xrFrame) {
+                    // Obtener la pose del visor
+                    const pose = xrFrame.getViewerPose(referenceSpace);
+                    if (pose) {
+                        // Actualizar la posición y orientación del modelo cuando la imagen sea rastreada
+                        const trackedImage = xrFrame.getTrackedImage(imageTarget);
+                        if (trackedImage) {
+                            // Obtener la matriz de transformación de la imagen rastreada
+                            const modelMatrix = trackedImage.getModelMatrix();
+                            
+                            // Actualizar la posición y orientación del modelo en la escena de Three.js
+                            gltf.scene.matrix.fromArray(modelMatrix);
+                            gltf.scene.matrix.decompose(gltf.scene.position, gltf.scene.quaternion, gltf.scene.scale);
+                        }
                     }
-                });
 
-                // Función para el bucle de renderizado
-                function animate() {
-                    requestAnimationFrame(animate);
-                    // Renderizar la escena Three.js
-                    renderer.render(scene, camera);
+                    // Renderizar la escena
+                    session.requestAnimationFrame(render);
                 }
-                animate();
 
+                session.requestAnimationFrame(render);
             } catch (error) {
                 console.error('Error al iniciar la experiencia de AR:', error);
             }
-        }
+        });
     </script>
 </body>
 </html>
+
 
