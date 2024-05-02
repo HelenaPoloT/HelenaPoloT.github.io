@@ -1,135 +1,121 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <title>Hello WebXR14!</title>
-    <!-- Importar Three.js -->
-    <script src="https://unpkg.com/three@0.126.0/build/three.js"></script>
-    <script src="https://unpkg.com/three@0.126.0/examples/js/loaders/GLTFLoader.js"></script>
+    <meta charset="utf-8">
+    <meta name="viewport" content='width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes'>
+    <title>Unity WebGL Player | Unity WebXR Export</title>
+    <link rel="stylesheet" href="TemplateData/style.css">
+    <style>
+         html{
+            height: -webkit-fill-available;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            min-height: -webkit-fill-available;
+            width: 100vw;
+            overflow: hidden;
+        }
+
+        .ctaDiv {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            background: #fffa;
+            z-index: 99;
+        }
+    </style>
+
 </head>
 <body>
-    <!-- Botón para iniciar la experiencia de AR -->
-    <button onclick="activateXR()">Start WebXR</button>
+    <script src="app.js" type="text/javascript"></script>
+    <!--IMAGETARGETS-->
+    <div id="startWebcamDiv" class="ctaDiv">
+        <p style="text-align: center; width:60vw">This augmented reality experience requires access to your device's camera</p>
+        <button id="startCameraBtn" onclick="StartCamera()" style="display:none">ALLOW ACCESS</button>
+    </div>
+    <div id="startWebcamManuallyDiv" style="display: none" class="ctaDiv">
+        <button onclick="StartCameraManually()" style="width:180px; height:40px; border:1px solid gray; border-radius:8px">START WEBCAM</button>
+    </div>
 
+    <div id="unity-container" class="unity-desktop">
+        <canvas id="unity-canvas" style="width: 100%; height: 100%; background: #0000; z-index: -99"></canvas>
+        <div id="unity-loading-bar">
+            <div id="unity-logo"></div>
+            <div id="unity-progress-bar-empty">
+                <div id="unity-progress-bar-full"></div>
+            </div>
+        </div>
+    </div>
+    <script src="Build/ImageAR.loader.js"></script>
     <script>
-        async function activateXR() {
-            try {
-                // Crear un canvas para el contexto WebGL
-                const canvas = document.createElement("canvas");
-                document.body.appendChild(canvas);
-                const gl = canvas.getContext("webgl", {xrCompatible: true});
+            var container = document.querySelector("#unity-container");
+            var canvas = document.querySelector("#unity-canvas");
+            var loadingBar = document.querySelector("#unity-loading-bar");
+            var progressBarFull = document.querySelector("#unity-progress-bar-full");
 
-                // Crear la escena de Three.js
-                const scene = new THREE.Scene();
-
-                //Colocar luz
-                const directionalLight = new THREE.DirectionalLight(0xffffff, 0.3);
-                directionalLight.position.set(10, 15, 10);
-                scene.add(directionalLight);
-
-                // Configurar el renderizador de Three.js
-                const renderer = new THREE.WebGLRenderer(
-                {
-                    alpha: true,
-                    preserveDrawingBuffer: true,
-                    canvas: canvas,
-                    context: gl
-                });
-                renderer.autoClear = false;
-
-                // Configurar la cámara de Three.js
-                const camera = new THREE.PerspectiveCamera();
-                camera.matrixAutoUpdate = false;
-
-                // Iniciar la sesión de WebXR
-                const session = await navigator.xr.requestSession("immersive-ar", {requiredFeatures: ['hit-test']});
-                session.updateRenderState(
-                {
-                    baseLayer: new XRWebGLLayer(session, gl)
-                });
-                const referenceSpace = await session.requestReferenceSpace('local');
-
-                // Create another XRReferenceSpace that has the viewer as the origin.
-                const viewerSpace = await session.requestReferenceSpace('viewer');
-                // Perform hit testing using the viewer as origin.
-                const hitTestSource = await session.requestHitTestSource({ space: viewerSpace });
-
-                //Crear el retículo
-                const loader = new THREE.GLTFLoader();
-                let reticle;
-                loader.load("https://immersive-web.github.io/webxr-samples/media/gltf/reticle/reticle.gltf", function(gltf) 
-                {
-                    reticle = gltf.scene;
-                    reticle.visible = false;
-                    scene.add(reticle);
-                })
-
-                //Crear el modelo
-                let fish;
-                loader.load("ship4.glb", function(gltf) 
-                {
-                    fish = gltf.scene;
-                    //reticle.visible = false; //Desactivar el reticulo una vez se carga el modelo
-                });
-
-                // Añadir evento de selección
-                session.addEventListener("select", (event) => {
-                    if (fish) 
-                    {
-                        const clone = fish.clone();
-                        clone.position.copy(reticle.position);
-                        scene.add(clone);
-                        //reticle.visible = false; // Desactivar el retículo una vez que se carga el modelo
-                        //scene.remove(reticle);
-
-                    }
-                });
-
-                // Crear el bucle de renderizado de la escena de AR
-                const onXRFrame = (time, frame) => 
-                {
-                    session.requestAnimationFrame(onXRFrame);
-
-                    gl.bindFramebuffer(gl.FRAMEBUFFER, session.renderState.baseLayer.framebuffer); // Aquí se enlaza el framebuffer
-
-                    const pose = frame.getViewerPose(referenceSpace);
-                    if (pose) 
-                    {
-                        const view = pose.views[0];
-                        const viewport = session.renderState.baseLayer.getViewport(view);
-                        renderer.setSize(viewport.width, viewport.height);
-                        camera.matrix.fromArray(view.transform.matrix);
-                        camera.projectionMatrix.fromArray(view.projectionMatrix);
-                        camera.updateMatrixWorld(true);
-                        const hitTestResults = frame.getHitTestResults(hitTestSource);
-                        if (hitTestResults.length > 0 && reticle) 
-                        {
-                            const hitPose = hitTestResults[0].getPose(referenceSpace);
-                            reticle.visible = true;
-                            reticle.position.set(hitPose.transform.position.x, hitPose.transform.position.y, hitPose.transform.position.z)
-                            reticle.updateMatrixWorld(true);
-                        }
-                        renderer.render(scene, camera);
-                    }
-                };
-                session.requestAnimationFrame(onXRFrame);
-
-                // Manejar el cierre de la sesión de WebXR
-                const onSessionEnd = () => 
-                {
-                    session.removeEventListener('end', onSessionEnd);
-                    renderer.dispose(); // Liberar los recursos del renderizador
-                    canvas.remove(); // Eliminar el canvas de la página
-                };
-                session.addEventListener('end', onSessionEnd);
-
-            } 
-            catch (error) 
-            {
-                console.error('Error al iniciar la experiencia de AR:', error);
+            if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+                container.className = "unity-mobile";
             }
-        }
+
+            function StartCamera() {
+                canvas.style.width = window.innerWidth + "px";
+                canvas.style.height = window.innerHeight + "px";
+                
+                document.getElementById("startWebcamDiv").style.display = "none";
+
+                createUnityInstance(document.querySelector("#unity-canvas"), {
+                    dataUrl: "Build/ImageAR.data",
+                    frameworkUrl: "Build/ImageAR.framework.js",
+                    codeUrl: "Build/ImageAR.wasm",
+                    streamingAssetsUrl: "StreamingAssets",
+                    companyName: "De-Panther",
+                    productName: "Unity WebXR Export",
+                    productVersion: "0.1",
+                    //webglContextAttributes: { "preserveDrawingBuffer": true },
+                    // matchWebGLToCanvasSize: false, // Uncomment this to separately control WebGL canvas render size and DOM element size.
+                    // devicePixelRatio: 1, // Uncomment this to override low DPI rendering on high DPI displays.
+                    },
+                    (progress) => {
+                        progressBarFull.style.width = 100 * progress + "%";
+                    }
+                ).then((unityInstance) => {
+                    window.gameInstance = unityInstance;
+                    window.unityInstance = unityInstance;
+                    window.iTracker.startWebcam();
+
+                    //[FIX]: some browsers (such as Wechat) does not allow webcam autoplay so we need to start the webcam manually via new button press
+                    window.waitForVideo = () => {
+                        setTimeout(() => {
+                            if (!window.iTracker.VIDEO) {
+                                window.waitForVideo();
+                            }
+                            else if (window.iTracker.VIDEO.currentTime <= 0) {
+                                document.getElementById("startWebcamManuallyDiv").style.display = "flex";
+                            }
+                        }, 2500)
+                    };
+                    window.waitForVideo();
+
+                    loadingBar.style.display = "none";
+                });
+
+                loadingBar.style.display = "block";
+            }
+
+            function StartCameraManually() {
+                document.getElementById("startWebcamManuallyDiv").style.display = "none";
+                iTracker.VIDEO.play()
+            }
+
     </script>
 </body>
 </html>
