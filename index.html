@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content='width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes'>
-    <title>Unity WebGL Player | Unity WebXR Export</title>
+    <title>Unity WebGL Player | Imagine_WebAR_Plugin</title>
     <link rel="stylesheet" href="TemplateData/style.css">
     <style>
          html{
@@ -55,7 +55,7 @@
             </div>
         </div>
     </div>
-    <script src="Build/ImageAR.loader.js"></script>
+    <script src="Build/Imagine_WebAR.loader.js"></script>
     <script>
             var container = document.querySelector("#unity-container");
             var canvas = document.querySelector("#unity-canvas");
@@ -73,12 +73,12 @@
                 document.getElementById("startWebcamDiv").style.display = "none";
 
                 createUnityInstance(document.querySelector("#unity-canvas"), {
-                    dataUrl: "Build/ImageAR.data",
-                    frameworkUrl: "Build/ImageAR.framework.js",
-                    codeUrl: "Build/ImageAR.wasm",
+                    dataUrl: "Build/Imagine_WebAR.data.gz",
+                    frameworkUrl: "Build/Imagine_WebAR.framework.js.gz",
+                    codeUrl: "Build/Imagine_WebAR.wasm.gz",
                     streamingAssetsUrl: "StreamingAssets",
-                    companyName: "De-Panther",
-                    productName: "Unity WebXR Export",
+                    companyName: "DefaultCompany",
+                    productName: "Imagine_WebAR_Plugin",
                     productVersion: "0.1",
                     //webglContextAttributes: { "preserveDrawingBuffer": true },
                     // matchWebGLToCanvasSize: false, // Uncomment this to separately control WebGL canvas render size and DOM element size.
